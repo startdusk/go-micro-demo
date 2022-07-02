@@ -8,3 +8,6 @@ endif
 ifeq ($(bin), broker-service)
 	$(CMD) run ./$(bin)/cmd/api/main.go
 endif
+
+docker-compose:
+	docker-compose up -d ./project
