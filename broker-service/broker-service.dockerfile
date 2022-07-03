@@ -7,11 +7,15 @@ COPY . /app
 
 WORKDIR /app
 
+RUN go env -w GOPROXY=https://goproxy.cn
+RUN go mod download
+
+
 RUN CGO_ENABLED=0 go build -o brokerApp ./cmd/api
 
 RUN chmod +x /app/brokerApp
 
-# build a tiny docker image
+# build a tiny docker image 
 FROM alpine:latest
 
 RUN mkdir /app
