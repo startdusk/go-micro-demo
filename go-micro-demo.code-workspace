@@ -7,10 +7,10 @@
 		"path": "./front-end"
 	},
 	{
-		"path": "./project"
+		"path": "./broker-service"
 	},
 	{
-		"path": "./broker-service"
+		"path": "./project"
 	},
 ],
   "settings": {
