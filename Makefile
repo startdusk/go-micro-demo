@@ -5,6 +5,7 @@
 		dc-remove \
 		dc-reup \
 		build_broker \
+		build_auth \
 		build_front \
 		start \
 		stop \
@@ -17,6 +18,7 @@ prepare: fmt vet test testrace
 
 FRONT_END_BINARY=frontApp
 BROKER_BINARY=brokerApp
+AUTH_BINARY=authApp
 
 CMD=go
 CD=cd
@@ -26,9 +28,9 @@ CD_TO_TARGET=$(CD) ./$(bin)
 
 ## docker-compose
 DOCKER_CMD=docker-compose
-dc-up: build_broker
+dc-up: build_broker build_auth
 	@echo "Starting Docker images..."
-	$(DOCKER_CMD) -f ./project/docker-compose.yml up -d
+	$(DOCKER_CMD) -f ./project/docker-compose.yml up -d --build
 	@echo "Docker images started!"
 dc-stop:
 	@echo "Stopping docker compose..."
@@ -38,12 +40,13 @@ dc-remove:
 	@echo "Removing docker compose..."
 	$(DOCKER_CMD) -f ./project/docker-compose.yml down
 	@echo "Done!"
-dc-reup: build_broker
-	@echo "Stopping docker images (if running...)"
-	$(DOCKER_CMD) -f ./project/docker-compose.yml down
-	@echo "Building (when required) and starting docker images..."
-	$(DOCKER_CMD) -f ./project/docker-compose.yml up -d
-	@echo "Docker images built and started!"
+dc-reup: dc-remove dc-up
+
+## build_auth: builds the auth binary as a linux executable
+build_auth: prepare
+	@echo "Building auth binary..."
+	cd ./authentication-service && env GOOS=linux CGO_ENABLED=0 go build -o ${AUTH_BINARY} ./cmd/api
+	@echo "Done!"
 
 ## build_broker: builds the broker binary as a linux executable
 build_broker: prepare
@@ -52,7 +55,7 @@ build_broker: prepare
 	@echo "Done!"
 
 ## build_front: builds the frone end binary
-build_front: prepare
+build_front:
 	@echo "Building front end binary..."
 	cd ./front-end && env CGO_ENABLED=0 go build -o ${FRONT_END_BINARY} ./cmd/web
 	@echo "Done!"
@@ -61,38 +64,45 @@ build_front: prepare
 start: build_front
 	@echo "Starting front end"
 	cd ./front-end && ./${FRONT_END_BINARY} &
+	@echo "Started front end"
 
 ## stop: stop the front end
 stop:
 	@echo "Stopping front end..."
 	@-pkill -SIGTERM -f "./${FRONT_END_BINARY}"
 	@echo "Stopped front end!"
+
 fmt:
 	@echo "Formatting code..."
 	$(CD) ./front-end && go fmt ./...
 	$(CD) ./broker-service && go fmt ./...
+	$(CD) ./authentication-service && go fmt ./...
 	@echo "Done"
 
 vet:
 	@echo "Vet code..."
 	$(CD) ./front-end && go vet ./...
 	$(CD) ./broker-service && go vet ./...
+	$(CD) ./authentication-service && go vet ./...
 	@echo "Done"
 
 test:
 	@echo "Running testing..."
 	$(CD) ./front-end && go test ./...
 	$(CD) ./broker-service && go test ./...
+	$(CD) ./authentication-service && go test ./...
 	@echo "Done"
 
 bench:
 	@echo "Running benchmark..."
 	$(CD) ./front-end && go test -bench=. -run=^$
 	$(CD) ./broker-service && go test -bench=. -run=^$
+	$(CD) ./authentication-service && go test -bench=. -run=^$
 	@echo "Done"
 
 testrace:
 	@echo "Running test race..."
 	$(CD) ./front-end && go test -race -cpu 1,4 -timeout 7m ./...
 	$(CD) ./broker-service && go test -race -cpu 1,4 -timeout 7m ./...
+	$(CD) ./authentication-service && go test -race -cpu 1,4 -timeout 7m ./...
 	@echo "Done"

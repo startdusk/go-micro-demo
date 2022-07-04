@@ -12,6 +12,9 @@
 	{
 		"path": "./project"
 	},
+	{
+		"path": "authentication-service"
+	}
 ],
   "settings": {
     "makefile.extensionOutputFolder": "./.vscode"
