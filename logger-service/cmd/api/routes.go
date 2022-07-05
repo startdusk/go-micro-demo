@@ -21,5 +21,6 @@ func (app *Config) routes() http.Handler {
 		MaxAge:           30,
 	}))
 	mux.Use(middleware.Heartbeat("/ping"))
+	mux.Post("/log", app.WriteLog)
 	return mux
 }
