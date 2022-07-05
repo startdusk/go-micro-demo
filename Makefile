@@ -19,6 +19,7 @@ prepare: fmt vet test testrace
 FRONT_END_BINARY=frontApp
 BROKER_BINARY=brokerApp
 AUTH_BINARY=authApp
+LOGGER_SERVICE_BINARY=loggerServiceApp
 
 CMD=go
 CD=cd
@@ -28,7 +29,7 @@ CD_TO_TARGET=$(CD) ./$(bin)
 
 ## docker-compose
 DOCKER_CMD=docker-compose
-dc-up: build_broker build_auth
+dc-up: build_broker build_auth build_logger
 	@echo "Starting Docker images..."
 	$(DOCKER_CMD) -f ./project/docker-compose.yml up -d --build
 	@echo "Docker images started!"
@@ -41,6 +42,12 @@ dc-remove:
 	$(DOCKER_CMD) -f ./project/docker-compose.yml down
 	@echo "Done!"
 dc-reup: dc-remove dc-up
+
+## build_logger: builds the logger service binary as a linux executable
+build_logger: prepare
+	@echo "Building logger service binary..."
+	cd ./logger-service && env GOOS=linux CGO_ENABLED=0 go build -o ${LOGGER_SERVICE_BINARY} ./cmd/api
+	@echo "Done!"
 
 ## build_auth: builds the auth binary as a linux executable
 build_auth: prepare
@@ -77,6 +84,7 @@ fmt:
 	$(CD) ./front-end && go fmt ./...
 	$(CD) ./broker-service && go fmt ./...
 	$(CD) ./authentication-service && go fmt ./...
+	$(CD) ./logger-service && go fmt ./...
 	@echo "Done"
 
 vet:
@@ -84,6 +92,7 @@ vet:
 	$(CD) ./front-end && go vet ./...
 	$(CD) ./broker-service && go vet ./...
 	$(CD) ./authentication-service && go vet ./...
+	$(CD) ./logger-service && go vet ./...
 	@echo "Done"
 
 test:
@@ -91,6 +100,7 @@ test:
 	$(CD) ./front-end && go test ./...
 	$(CD) ./broker-service && go test ./...
 	$(CD) ./authentication-service && go test ./...
+	$(CD) ./logger-service && go test ./...
 	@echo "Done"
 
 bench:
@@ -98,6 +108,7 @@ bench:
 	$(CD) ./front-end && go test -bench=. -run=^$
 	$(CD) ./broker-service && go test -bench=. -run=^$
 	$(CD) ./authentication-service && go test -bench=. -run=^$
+	$(CD) ./logger-service && go test -bench=. -run=^$
 	@echo "Done"
 
 testrace:
@@ -105,4 +116,5 @@ testrace:
 	$(CD) ./front-end && go test -race -cpu 1,4 -timeout 7m ./...
 	$(CD) ./broker-service && go test -race -cpu 1,4 -timeout 7m ./...
 	$(CD) ./authentication-service && go test -race -cpu 1,4 -timeout 7m ./...
+	$(CD) ./logger-service && go test -race -cpu 1,4 -timeout 7m ./...
 	@echo "Done"

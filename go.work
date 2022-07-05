@@ -4,4 +4,5 @@ use (
 	./front-end
 	./broker-service
 	./authentication-service
+	./logger-service
 )
