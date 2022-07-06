@@ -2,7 +2,7 @@ version: '3'
 
 services:
   broker-service:
-    build: 
+    build:
       context: ./../broker-service
       dockerfile: ./../broker-service/broker-service.dockerfile
     restart: always
@@ -11,9 +11,9 @@ services:
     deploy:
       mode: replicated
       replicas: 1
-  
+
   logger-service:
-    build: 
+    build:
       context: ./../logger-service
       dockerfile: ./../logger-service/logger-service.dockerfile
     restart: always
@@ -24,7 +24,7 @@ services:
       replicas: 1
 
   authentication-service:
-    build: 
+    build:
       context: ./../authentication-service
       dockerfile: ./../authentication-service/authentication-service.dockerfile
     restart: always
@@ -62,5 +62,3 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: password
     volumes:
       - ./db-data/mongo:/data/db
-
-
