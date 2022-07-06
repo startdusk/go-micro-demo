@@ -7,6 +7,8 @@
 		build_broker \
 		build_auth \
 		build_front \
+		build_logger \
+		build_mail \
 		start \
 		stop \
 		fmt \
@@ -20,6 +22,7 @@ FRONT_END_BINARY=frontApp
 BROKER_BINARY=brokerApp
 AUTH_BINARY=authApp
 LOGGER_SERVICE_BINARY=loggerServiceApp
+MAIL_BINARY=mailApp
 
 CMD=go
 CD=cd
@@ -42,6 +45,12 @@ dc-remove:
 	$(DOCKER_CMD) -f ./project/docker-compose.yml down
 	@echo "Done!"
 dc-reup: dc-remove dc-up
+
+## build_mail: builds the mail service binary as a linux executable
+build_mail: prepare
+	@echo "Building mail service binary..."
+	cd ./mail-service && env GOOS=linux CGO_ENABLED=0 go build -o ${MAIL_BINARY} ./cmd/api
+	@echo "Done!"
 
 ## build_logger: builds the logger service binary as a linux executable
 build_logger: prepare
@@ -85,6 +94,7 @@ fmt:
 	$(CD) ./broker-service && go fmt ./...
 	$(CD) ./authentication-service && go fmt ./...
 	$(CD) ./logger-service && go fmt ./...
+	$(CD) ./mail-service && go fmt ./...
 	@echo "Done"
 
 vet:
@@ -93,6 +103,7 @@ vet:
 	$(CD) ./broker-service && go vet ./...
 	$(CD) ./authentication-service && go vet ./...
 	$(CD) ./logger-service && go vet ./...
+	$(CD) ./mail-service && go vet ./...
 	@echo "Done"
 
 test:
@@ -101,6 +112,7 @@ test:
 	$(CD) ./broker-service && go test ./...
 	$(CD) ./authentication-service && go test ./...
 	$(CD) ./logger-service && go test ./...
+	$(CD) ./mail-service && go test ./...
 	@echo "Done"
 
 bench:
@@ -109,6 +121,7 @@ bench:
 	$(CD) ./broker-service && go test -bench=. -run=^$
 	$(CD) ./authentication-service && go test -bench=. -run=^$
 	$(CD) ./logger-service && go test -bench=. -run=^$
+	$(CD) ./mail-service && go test -bench=. -run=^$
 	@echo "Done"
 
 testrace:
@@ -117,4 +130,5 @@ testrace:
 	$(CD) ./broker-service && go test -race -cpu 1,4 -timeout 7m ./...
 	$(CD) ./authentication-service && go test -race -cpu 1,4 -timeout 7m ./...
 	$(CD) ./logger-service && go test -race -cpu 1,4 -timeout 7m ./...
+	$(CD) ./mail-service && go test -race -cpu 1,4 -timeout 7m ./...
 	@echo "Done"
