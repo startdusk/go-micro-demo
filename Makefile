@@ -32,7 +32,7 @@ CD_TO_TARGET=$(CD) ./$(bin)
 
 ## docker-compose
 DOCKER_CMD=docker-compose
-dc-up: build_broker build_auth build_logger
+dc-up: build_broker build_auth build_logger build_mail
 	@echo "Starting Docker images..."
 	$(DOCKER_CMD) -f ./project/docker-compose.yml up -d --build
 	@echo "Docker images started!"
