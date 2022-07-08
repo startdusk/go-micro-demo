@@ -9,6 +9,7 @@
 		build_front \
 		build_logger \
 		build_mail \
+		build_listener \
 		start \
 		stop \
 		fmt \
@@ -23,6 +24,7 @@ BROKER_BINARY=brokerApp
 AUTH_BINARY=authApp
 LOGGER_SERVICE_BINARY=loggerServiceApp
 MAIL_BINARY=mailApp
+LISTENER_BINARY=listenerApp
 
 CMD=go
 CD=cd
@@ -32,7 +34,7 @@ CD_TO_TARGET=$(CD) ./$(bin)
 
 ## docker-compose
 DOCKER_CMD=docker-compose
-dc-up: build_broker build_auth build_logger build_mail
+dc-up: build_broker build_auth build_logger build_mail build_listener
 	@echo "Starting Docker images..."
 	$(DOCKER_CMD) -f ./project/docker-compose.yml up -d --build
 	@echo "Docker images started!"
@@ -45,6 +47,12 @@ dc-remove:
 	$(DOCKER_CMD) -f ./project/docker-compose.yml down
 	@echo "Done!"
 dc-reup: dc-remove dc-up
+
+## build_listener: builds the listener service binary as a linux executable
+build_listener: prepare
+	@echo "Building listener service binary..."
+	cd ./listener-service && env GOOS=linux CGO_ENABLED=0 go build -o ${LISTENER_BINARY} ./cmd/api
+	@echo "Done!"
 
 ## build_mail: builds the mail service binary as a linux executable
 build_mail: prepare
@@ -95,6 +103,7 @@ fmt:
 	$(CD) ./authentication-service && go fmt ./...
 	$(CD) ./logger-service && go fmt ./...
 	$(CD) ./mail-service && go fmt ./...
+	$(CD) ./listener-service && go fmt ./...
 	@echo "Done"
 
 vet:
@@ -104,6 +113,7 @@ vet:
 	$(CD) ./authentication-service && go vet ./...
 	$(CD) ./logger-service && go vet ./...
 	$(CD) ./mail-service && go vet ./...
+	$(CD) ./listener-service && go vet ./...
 	@echo "Done"
 
 test:
@@ -113,6 +123,7 @@ test:
 	$(CD) ./authentication-service && go test ./...
 	$(CD) ./logger-service && go test ./...
 	$(CD) ./mail-service && go test ./...
+	$(CD) ./listener-service && go test ./...
 	@echo "Done"
 
 bench:
@@ -122,6 +133,7 @@ bench:
 	$(CD) ./authentication-service && go test -bench=. -run=^$
 	$(CD) ./logger-service && go test -bench=. -run=^$
 	$(CD) ./mail-service && go test -bench=. -run=^$
+	$(CD) ./listener-service && go test -bench=. -run=^$
 	@echo "Done"
 
 testrace:
@@ -131,4 +143,5 @@ testrace:
 	$(CD) ./authentication-service && go test -race -cpu 1,4 -timeout 7m ./...
 	$(CD) ./logger-service && go test -race -cpu 1,4 -timeout 7m ./...
 	$(CD) ./mail-service && go test -race -cpu 1,4 -timeout 7m ./...
+	$(CD) ./listener-service && go test -race -cpu 1,4 -timeout 7m ./...
 	@echo "Done"
