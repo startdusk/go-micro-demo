@@ -51,7 +51,7 @@ dc-reup: dc-remove dc-up
 ## build_listener: builds the listener service binary as a linux executable
 build_listener: prepare
 	@echo "Building listener service binary..."
-	cd ./listener-service && env GOOS=linux CGO_ENABLED=0 go build -o ${LISTENER_BINARY} ./cmd/api
+	cd ./listener-service && env GOOS=linux CGO_ENABLED=0 go build -o ${LISTENER_BINARY} .
 	@echo "Done!"
 
 ## build_mail: builds the mail service binary as a linux executable

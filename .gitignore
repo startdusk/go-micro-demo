@@ -18,4 +18,6 @@ brokerApp
 frontApp
 authApp
 loggerServiceApp
+mailApp
+listenerApp
 db-data/
