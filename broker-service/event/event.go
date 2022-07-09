@@ -26,4 +26,3 @@ func declareRandomQueue(ch *amqp.Channel) (amqp.Queue, error) {
 		nil,   // arguments?
 	)
 }
-
