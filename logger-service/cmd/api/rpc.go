@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"log"
-	"log-service/data"
+	"loggerservice/data"
 	"time"
 )
 

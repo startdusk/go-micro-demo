@@ -1,7 +1,7 @@
 package main
 
 import (
-	"log-service/data"
+	"loggerservice/data"
 	"net/http"
 )
 

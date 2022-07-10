@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"log-service/data"
+	"loggerservice/data"
 	"net"
 	"net/http"
 	"net/rpc"
@@ -57,6 +57,7 @@ func main() {
 		log.Panic(err)
 	}
 	go app.rpcListen()
+	go app.gRPCListen()
 
 	// start web server
 	srv := &http.Server{
